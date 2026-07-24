@@ -1,0 +1,44 @@
+// =========================================================================
+// SmartCity Traffic & Environmental Analytics - DAX Measures Library
+// =========================================================================
+
+// 1. Average Congestion Ratio
+Avg Congestion Ratio = 
+AVERAGE(gold_analytics[avg_congestion_ratio])
+
+// 2. Average Current Speed (km/h)
+Avg Current Speed = 
+AVERAGE(gold_analytics[avg_current_speed])
+
+// 3. Average Free Flow Speed (km/h)
+Avg Free Flow Speed = 
+AVERAGE(gold_analytics[avg_free_flow_speed])
+
+// 4. Congestion Severity Index (%)
+Congestion Index % = 
+(1 - [Avg Congestion Ratio]) * 100
+
+// 5. Peak Hour Traffic Delay Ratio
+Peak Hour Congestion = 
+CALCULATE(
+    [Avg Congestion Ratio],
+    gold_analytics[hour] IN {8, 9, 17, 18, 19}
+)
+
+// 6. Air Quality Index (AQI) Metric
+Average AQI = 
+AVERAGE(gold_analytics[avg_aqi])
+
+// 7. PM2.5 Fine Particulate Concentration (µg/m³)
+Average PM2.5 = 
+AVERAGE(gold_analytics[avg_pm2_5])
+
+// 8. Weather Impact Risk Category
+Weather Risk Level = 
+SWITCH(
+    TRUE(),
+    AVERAGE(gold_analytics[avg_temperature]) > 35, "Extreme Heat",
+    AVERAGE(gold_analytics[avg_aqi]) >= 4, "Hazardous Air Quality",
+    [Avg Congestion Ratio] < 0.65, "Heavy Congestion Delay",
+    "Optimal Traffic Flow"
+)

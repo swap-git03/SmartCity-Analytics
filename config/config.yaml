@@ -1,22 +1,87 @@
 app:
-  name: "SmartCityTrafficAnalytics"
-  version: "1.0.0"
+  name: "UrbanPulse"
+  title: "Mumbai Smart Mobility & Environmental Analytics Platform"
+  version: "2.0.0"
   environment: "development"
+  target_city: "Mumbai"
 
-# Target Cities / Geofence coordinates
-cities:
-  - name: "New York"
-    lat: 40.7128
-    lon: -74.0060
-    zoom: 10
-  - name: "London"
-    lat: 51.5074
-    lon: -0.1278
-    zoom: 10
-  - name: "Mumbai"
-    lat: 19.0760
-    lon: 72.8777
-    zoom: 10
+# Monitored Mumbai Locations & Junction Coordinates (YAML Configured)
+locations:
+  - name: "Andheri"
+    area_type: "Commercial & Transport Hub"
+    lat: 19.1197
+    lon: 72.8464
+    zoom: 13
+  - name: "Bandra"
+    area_type: "Commercial & Residential"
+    lat: 19.0596
+    lon: 72.8295
+    zoom: 13
+  - name: "BKC"
+    area_type: "Financial District"
+    lat: 19.0657
+    lon: 72.8686
+    zoom: 14
+  - name: "Powai"
+    area_type: "Tech Hub & Residential"
+    lat: 19.1176
+    lon: 72.9060
+    zoom: 13
+  - name: "Dadar"
+    area_type: "Central Transit Junction"
+    lat: 19.0178
+    lon: 72.8478
+    zoom: 13
+  - name: "Kurla"
+    area_type: "Transit & Commercial"
+    lat: 19.0726
+    lon: 72.8845
+    zoom: 13
+  - name: "Borivali"
+    area_type: "Suburban Transit Hub"
+    lat: 19.2307
+    lon: 72.8567
+    zoom: 13
+  - name: "Ghatkopar"
+    area_type: "Eastern Suburb Junction"
+    lat: 19.0860
+    lon: 72.9080
+    zoom: 13
+  - name: "Chembur"
+    area_type: "Industrial & Residential"
+    lat: 19.0621
+    lon: 72.8988
+    zoom: 13
+  - name: "Lower Parel"
+    area_type: "Business Hub"
+    lat: 18.9953
+    lon: 72.8315
+    zoom: 13
+  - name: "CST"
+    area_type: "Heritage & Railway Terminus"
+    lat: 18.9401
+    lon: 72.8351
+    zoom: 14
+  - name: "Marine Drive"
+    area_type: "Coastal Highway"
+    lat: 18.9440
+    lon: 72.8230
+    zoom: 14
+  - name: "Airport"
+    area_type: "International Terminal (CSMIA)"
+    lat: 19.0896
+    lon: 72.8656
+    zoom: 14
+  - name: "Thane"
+    area_type: "Metropolitan Suburb"
+    lat: 19.2183
+    lon: 72.9781
+    zoom: 12
+  - name: "Navi Mumbai"
+    area_type: "Planned City Region"
+    lat: 19.0330
+    lon: 73.0297
+    zoom: 12
 
 # REST API Ingestion Parameters
 api:
@@ -32,11 +97,11 @@ api:
 
 # Apache Kafka Configuration
 kafka:
-  bootstrap_servers: "localhost:9092"
+  bootstrap_servers: "13.217.6.185:9092"
   topics:
-    traffic_raw: "traffic-raw-events"
-    weather_raw: "weather-raw-events"
-    aqi_raw: "aqi-raw-events"
+    traffic_raw: "mumbai-traffic-events"
+    weather_raw: "mumbai-weather-events"
+    aqi_raw: "mumbai-aqi-events"
   producer:
     acks: "all"
     retries: 3
@@ -45,7 +110,7 @@ kafka:
 
 # Apache Spark Stream & Storage Settings
 spark:
-  app_name: "SmartCityStreamingETL"
+  app_name: "UrbanPulseSparkETL"
   master: "local[*]"
   driver_memory: "2g"
   executor_memory: "2g"
@@ -66,12 +131,12 @@ storage:
 
 # Machine Learning Parameters
 ml:
-  random_forest:
+  random_forest_regressor:
     n_estimators: 100
-    max_depth: 15
+    max_depth: 12
     random_state: 42
-  xgboost:
-    n_estimators: 200
+  xgboost_regressor:
+    n_estimators: 150
     learning_rate: 0.05
     max_depth: 6
     random_state: 42

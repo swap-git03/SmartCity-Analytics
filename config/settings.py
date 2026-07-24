@@ -1,8 +1,8 @@
 """
-Configuration Settings Loader Module.
+UrbanPulse Configuration Settings Loader Module.
 
 Merges YAML configuration (config/config.yaml) with environment variables (.env)
-providing a clean, centralized settings interface for the application.
+providing a clean, centralized settings interface for UrbanPulse Mumbai Smart Mobility Platform.
 """
 
 import os
@@ -53,17 +53,20 @@ class Settings:
         self.OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
         self.AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "")
         self.AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "")
-        self.AWS_REGION = os.getenv("AWS_REGION", self._yaml_data.get("aws", {}).get("region", "us-east-1"))
-        self.AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET", self._yaml_data.get("aws", {}).get("s3_bucket", "smart-city-traffic-analytics"))
+        self.AWS_REGION = os.getenv("AWS_REGION", self._yaml_data.get("aws", {}).get("region", "ap-south-1"))
+        self.AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET", self._yaml_data.get("aws", {}).get("s3_bucket", "smartcity-traffic-analytics-swapnil"))
 
         # 2. Kafka Configuration
         env_kafka = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
-        self.KAFKA_BOOTSTRAP_SERVERS = env_kafka if env_kafka else self._yaml_data.get("kafka", {}).get("bootstrap_servers", "localhost:9092")
+        self.KAFKA_BOOTSTRAP_SERVERS = env_kafka if env_kafka else self._yaml_data.get("kafka", {}).get("bootstrap_servers", "13.217.6.185:9092")
         self.KAFKA_TOPICS = self._yaml_data.get("kafka", {}).get("topics", {})
 
-        # 3. Application & City Target Specs
-        self.APP_NAME = self._yaml_data.get("app", {}).get("name", "SmartCityTrafficAnalytics")
-        self.CITIES = self._yaml_data.get("cities", [])
+        # 3. Application & Location Specs (UrbanPulse Mumbai Locations)
+        self.APP_NAME = self._yaml_data.get("app", {}).get("name", "UrbanPulse")
+        self.APP_TITLE = self._yaml_data.get("app", {}).get("title", "Mumbai Smart Mobility & Environmental Analytics Platform")
+        self.LOCATIONS = self._yaml_data.get("locations", [])
+        # Alias CITIES to LOCATIONS for backward compatibility
+        self.CITIES = self.LOCATIONS
 
         # 4. API Specific Configs
         self.TOMTOM_CONFIG = self._yaml_data.get("api", {}).get("tomtom", {})
@@ -74,12 +77,16 @@ class Settings:
         self.STORAGE_CONFIG = self._yaml_data.get("storage", {})
         self.ML_CONFIG = self._yaml_data.get("ml", {})
 
+    def get_location_coords(self, location_name: str) -> dict:
+        """Helper to get coordinates for a given Mumbai location."""
+        for loc in self.LOCATIONS:
+            if loc["name"].lower() == location_name.lower():
+                return loc
+        raise TrafficPlatformException(f"Location '{location_name}' not configured in config.yaml")
+
     def get_city_coords(self, city_name: str) -> dict:
-        """Helper to get coordinates for a given target city."""
-        for city in self.CITIES:
-            if city["name"].lower() == city_name.lower():
-                return city
-        raise TrafficPlatformException(f"City '{city_name}' not configured in config.yaml")
+        """Backward compatibility helper mapping city to location."""
+        return self.get_location_coords(city_name)
 
 
 # Instantiate Singleton Settings Object
