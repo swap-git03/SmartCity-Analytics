@@ -1,8 +1,7 @@
 """
-Phase 4 Kafka Producer Verification Test Script.
+Phase 4 & 5 Kafka Producer Verification Test Script.
 
-Executes a single polling burst to verify API polling, payload formatting,
-topic message emission, and fallback buffer persistence.
+Executes a single polling burst to test Kafka Producer connection to EC2 broker (13.217.6.185:9092).
 """
 
 import sys
@@ -14,13 +13,13 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from utils.logger import get_logger
-from kafka.producer import CityDataProducer
+from kafka.city_producer import CityDataProducer
 
-logger = get_logger("Phase4Test")
+logger = get_logger("Phase5Test")
 
 
 def run_producer_verification():
-    logger.info("=== Starting Phase 4 Kafka Producer Verification ===")
+    logger.info("=== Starting Kafka Producer Connection Test to EC2 Broker ===")
 
     producer = CityDataProducer()
     
@@ -30,7 +29,7 @@ def run_producer_verification():
     # Close producer resources cleanly
     producer.close()
 
-    logger.info("=== Phase 4 Kafka Producer Verification Complete & Successful ===")
+    logger.info("=== Kafka Producer Connection Test Complete ===")
 
 
 if __name__ == "__main__":
