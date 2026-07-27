@@ -1,9 +1,11 @@
 """
 Phase 13 Power BI & Interactive Web Dashboard Server.
 
-Launches a light local HTTP server hosting powerbi/dashboard.html at http://localhost:8080
+Launches a light local HTTP server hosting powerbi/dashboard.html
+With automatic port fallback (8080 -> 8085 -> 8000 -> 8088).
 """
 
+import os
 import sys
 import http.server
 import socketserver
@@ -18,7 +20,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from utils.logger import get_logger
 
 logger = get_logger("DashboardServer")
-PORT = 8080
+PORTS_TO_TRY = [8080, 8085, 8000, 8088]
+
+
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
 
 
 def start_dashboard_server():
@@ -26,18 +32,26 @@ def start_dashboard_server():
     os.chdir(pbi_dir)
 
     Handler = http.server.SimpleHTTPRequestHandler
-    logger.info(f"=== Starting Real-Time Interactive Web Dashboard Server ===")
-    logger.info(f"Dashboard URL: http://localhost:{PORT}/dashboard.html")
+    logger.info("=== Starting Real-Time Interactive Web Dashboard Server ===")
 
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        logger.info(f"Server serving at port {PORT}. Opening browser...")
-        webbrowser.open(f"http://localhost:{PORT}/dashboard.html")
+    for port in PORTS_TO_TRY:
         try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            logger.info("Dashboard server stopped.")
+            with ReusableTCPServer(("", port), Handler) as httpd:
+                url = f"http://localhost:{port}/dashboard.html"
+                logger.info(f"Dashboard Server successfully listening at port {port}.")
+                logger.info(f"Dashboard URL: {url}")
+                webbrowser.open(url)
+                try:
+                    httpd.serve_forever()
+                except KeyboardInterrupt:
+                    logger.info("Dashboard server stopped.")
+                return
+        except OSError as e:
+            logger.warning(f"Port {port} is occupied or unavailable. Trying next port...")
+            continue
+
+    logger.error("All candidate ports (8080, 8085, 8000, 8088) are occupied. Could not start server.")
 
 
 if __name__ == "__main__":
-    import os
     start_dashboard_server()
